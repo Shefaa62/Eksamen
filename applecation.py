@@ -9,11 +9,13 @@ TIMEOUT = 0.5  # Timeout in seconds for retransmission
 
 header_format = '!HHH'  # sequence number 2 bytes, acknowledgment number 2 bytes, flags 2 bytes
 
+# Create package
 def create_packet(seq, ack, flags, data):
     header = pack(header_format, seq, ack, flags)
     packet = header + data
     return packet
 
+# Parse header and return it
 def parse_header(header):
     return unpack(header_format, header)
 
@@ -29,11 +31,13 @@ def receive_file(server_ip, server_port, discard_packet):
 
     print("Connection Establishment Phase:\n")
 
+    # receive SYN-packet fra client
     syn_packet, client_address = server_socket.recvfrom(BUFFER_SIZE)
     _, _, flags = parse_header(syn_packet[:6])
     syn, ack, fin = parse_flags(flags)
     if syn:
         print("SYN packet is received")
+        # Send SYN-ACK-package to client
         server_socket.sendto(create_packet(0, 0, (1 << 2) | (1 << 1), b''), client_address)  # SYN-ACK flag
         print("SYN-ACK packet is sent")
 
@@ -70,6 +74,7 @@ def receive_file(server_ip, server_port, discard_packet):
                 print("FIN ACK packet is sent")
                 break
 
+            # Check package must be thrown away
             if discard_packet is not None and seq_num == discard_packet:
                 print(f"Discarding packet {seq_num}")
                 discard_packet = None  # Discard only once
@@ -105,15 +110,18 @@ def receive_file(server_ip, server_port, discard_packet):
 
     server_socket.close()
 
+# Client function
 def send_data(server_ip, server_port, file_path, window_size):   # Send data
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     client_socket.settimeout(TIMEOUT)
 
     print("Connection Establishment Phase:\n")
 
+    # Send SYN-package to server
     client_socket.sendto(create_packet(0, 0, 1 << 2, b''), (server_ip, server_port))  # SYN flag
     print("SYN packet is sent")
 
+    # Receive SYN-ACK-package fra server
     syn_ack_packet, _ = client_socket.recvfrom(BUFFER_SIZE)
     _, _, flags = parse_header(syn_ack_packet[:6])
     syn, ack, fin = parse_flags(flags)
