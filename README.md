@@ -13,4 +13,5 @@ and in h1 I use "python3 -c -i 10.0.1.2 -p 8888 -f Photo.jpg -w 3". the windows 
 * the throuput with the window size 3 is 0.03Mbps, the throuput with the window size 5 is 0.05Mbps and the throuput with the window size 10 is 0.09Mbps. 
 * Then modify the RTT to 50ms and 200ms, and run the code in mininet with diffrent window size (3, 5, and 10).
 * Then use discard (-d) on the sirver side and in the client the window size is 20. the throuput is 0.17 Mbps.
+* in the terminal in windows it is faster to run code without discard (-d).
 * Demonstrate effective code, use tc-netem. I use xterm h1, then ping 10.0.1.2.
